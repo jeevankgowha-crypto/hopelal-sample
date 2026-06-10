@@ -1,0 +1,16 @@
+{
+  "name": "arigya-hospital",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-ready Arigya Hospital website, admin dashboard, and REST API.",
+  "scripts": {
+    "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server start",
+    "seed": "npm --prefix server run seed",
+    "install:all": "npm install && npm --prefix client install && npm --prefix server install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
