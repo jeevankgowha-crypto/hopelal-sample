@@ -12,11 +12,11 @@ import {
 } from "lucide-react";
 
 export const hospital = {
-  name: "Arigya Hospital",
+  name: "Arogya Hospital",
   phone: "+91 8088929007",
   email: "jeevankgowha@gmail.com",
   whatsapp: "918088929007",
-  address: "Arigya Hospital, Karnataka, India"
+  address: "Arogya Hospital, Karnataka, India"
 };
 
 export const departments = [
@@ -46,7 +46,7 @@ export const testimonials = [
 ];
 
 export const faqs = [
-  { q: "Is emergency care available 24/7?", a: "Yes. Arigya Hospital has round-the-clock emergency triage and stabilization support." },
+  { q: "Is emergency care available 24/7?", a: "Yes. Arogya Hospital has round-the-clock emergency triage and stabilization support." },
   { q: "Can I book an appointment online?", a: "Yes. Use the appointment form and our team will confirm your slot by phone or email." },
   { q: "Do you provide diagnostic services?", a: "Yes. Radiology and laboratory services are available for outpatient and inpatient care." },
   { q: "How do appointment reminders work?", a: "The backend includes email automation hooks for confirmations and reminders." }
