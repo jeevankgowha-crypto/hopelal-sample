@@ -23,3 +23,12 @@ export async function changePassword(req, res) {
   await admin.save();
   res.json({ message: "Password updated" });
 }
+
+export async function changeEmail(req, res) {
+  const admin = await Admin.findById(req.admin._id).select("+password");
+  const ok = await admin.comparePassword(req.body.currentPassword);
+  if (!ok) return res.status(403).json({ message: "Current password is incorrect" });
+  admin.email = req.body.newEmail;
+  await admin.save();
+  res.json({ message: "Email updated", email: admin.email });
+}

@@ -1,4 +1,4 @@
-import { Download, Edit3, Plus, Save, Search, Trash2, X } from "lucide-react";
+import { Download, Edit3, Key, Mail, Plus, Save, Search, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../lib/api";
 
@@ -121,6 +121,8 @@ export default function Manager({ type }) {
           </div>
         </form>
         {status && <p className="mt-4 text-sm font-bold text-ocean-700 dark:text-ocean-100">{status}</p>}
+
+        <AccountSettings />
       </div>
     );
   }
@@ -198,7 +200,104 @@ export default function Manager({ type }) {
   );
 }
 
-function Field({ label, value, onChange, textarea = false, required = false, className = "" }) {
+function AccountSettings() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [pwStatus, setPwStatus] = useState("");
+  const [pwError, setPwError] = useState(false);
+
+  const [emailPassword, setEmailPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [emStatus, setEmStatus] = useState("");
+  const [emError, setEmError] = useState(false);
+
+  async function handleChangePassword(event) {
+    event.preventDefault();
+    setPwStatus("");
+    setPwError(false);
+    if (newPassword.length < 8) {
+      setPwStatus("New password must be at least 8 characters.");
+      setPwError(true);
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwStatus("New passwords do not match.");
+      setPwError(true);
+      return;
+    }
+    try {
+      await api.post("/auth/change-password", { currentPassword, newPassword });
+      setPwStatus("Password changed successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      setPwStatus(err.response?.data?.message || "Failed to change password.");
+      setPwError(true);
+    }
+  }
+
+  async function handleChangeEmail(event) {
+    event.preventDefault();
+    setEmStatus("");
+    setEmError(false);
+    if (!newEmail || !newEmail.includes("@")) {
+      setEmStatus("Please enter a valid email address.");
+      setEmError(true);
+      return;
+    }
+    try {
+      await api.post("/auth/change-email", { currentPassword: emailPassword, newEmail });
+      setEmStatus("Login email changed successfully! Use this email next time you log in.");
+      setEmailPassword("");
+      setNewEmail("");
+    } catch (err) {
+      setEmStatus(err.response?.data?.message || "Failed to change email.");
+      setEmError(true);
+    }
+  }
+
+  return (
+    <div className="mt-10">
+      <h2 className="text-2xl font-black text-slate-950 dark:text-white">Account Security</h2>
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Change your admin login password and email address.</p>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        {/* Change Password */}
+        <form onSubmit={handleChangePassword} className="rounded-3xl bg-white p-6 shadow-sm dark:bg-slate-900">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-ocean-50 text-ocean-700 dark:bg-white/10 dark:text-ocean-100"><Key size={20} /></span>
+            <h3 className="text-lg font-bold text-slate-950 dark:text-white">Change Password</h3>
+          </div>
+          <div className="grid gap-3">
+            <Field label="Current password" value={currentPassword} onChange={setCurrentPassword} type="password" required />
+            <Field label="New password (min 8 chars)" value={newPassword} onChange={setNewPassword} type="password" required />
+            <Field label="Confirm new password" value={confirmPassword} onChange={setConfirmPassword} type="password" required />
+          </div>
+          <button className="btn-primary mt-4" type="submit"><Save size={17} /> Update Password</button>
+          {pwStatus && <p className={`mt-3 text-sm font-bold ${pwError ? "text-red-600" : "text-green-600"}`}>{pwStatus}</p>}
+        </form>
+
+        {/* Change Email */}
+        <form onSubmit={handleChangeEmail} className="rounded-3xl bg-white p-6 shadow-sm dark:bg-slate-900">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-ocean-50 text-ocean-700 dark:bg-white/10 dark:text-ocean-100"><Mail size={20} /></span>
+            <h3 className="text-lg font-bold text-slate-950 dark:text-white">Change Login Email</h3>
+          </div>
+          <div className="grid gap-3">
+            <Field label="Current password (for verification)" value={emailPassword} onChange={setEmailPassword} type="password" required />
+            <Field label="New login email" value={newEmail} onChange={setNewEmail} required />
+          </div>
+          <button className="btn-primary mt-4" type="submit"><Save size={17} /> Update Email</button>
+          {emStatus && <p className={`mt-3 text-sm font-bold ${emError ? "text-red-600" : "text-green-600"}`}>{emStatus}</p>}
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, textarea = false, required = false, className = "", type = "text" }) {
   const inputClass = "mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-ocean-500 dark:border-white/10 dark:bg-slate-950";
   return (
     <label className={`block text-sm font-semibold text-slate-700 dark:text-slate-200 ${className}`}>
@@ -206,7 +305,7 @@ function Field({ label, value, onChange, textarea = false, required = false, cla
       {textarea ? (
         <textarea required={required} className={`${inputClass} min-h-28`} value={value || ""} onChange={(event) => onChange(event.target.value)} />
       ) : (
-        <input required={required} className={inputClass} value={value || ""} onChange={(event) => onChange(event.target.value)} />
+        <input type={type} required={required} className={inputClass} value={value || ""} onChange={(event) => onChange(event.target.value)} />
       )}
     </label>
   );
