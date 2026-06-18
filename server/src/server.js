@@ -20,10 +20,25 @@ import siteRoutes from "./routes/site.routes.js";
 dotenv.config();
 
 const app = express();
-const allowedOrigin = process.env.CLIENT_URL || "http://localhost:5173";
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:4173"
+].filter(Boolean);
 
 app.use(helmet());
-app.use(cors({ origin: allowedOrigin, credentials: true }));
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    // Allow any vercel.app preview/production domain
+    if (origin.endsWith(".vercel.app")) return callback(null, true);
+    // Allow explicitly listed origins
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true
+}));
 app.use(compression());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json({ limit: "20kb" }));
